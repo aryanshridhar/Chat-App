@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat-App</title>
+</head>
+<style>
+    div.marginset{
+        margin-left: 8%;
+        margin-right: 8%;
+        height: 37rem;
+        overflow-y: scroll;
+    }
+    div.chatrow{
+        background-color:lightblue;
+        padding:1%;
+        padding-left: 4%;
+        margin-top: 2%;
+        margin-bottom: 2%;
+        border-radius: 20px;
+    }
+    p.time{
+        opacity: 0.6;
+        font-size: 12px;
+    }
+    p.msg{
+        margin-top:5%;
+    }
+    @media screen and (max-width : 770px){
+        label{  
+            font-size: 12px;
+        }
+        p.time{
+            font-size: 12px;
+        }
+    }
+    @media screen and (max-width: 440px){
+        div.chatrow{
+            margin-top: 10%;
+            margin-bottom: 10%;
+        }
+    }
+</style>
+<body>
+    <!-- NAVBAR  -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light pr-4">
+        <a class="navbar-brand pl-4" href="#">Chat-App</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="http://127.0.0.1:8000">Home <span class="sr-only">(current)</span></a>
+            </li>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/logout">Logout</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/contact">Contact</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <!-- END NAVBAR  -->
+
+      <div class="container">
+        {% if messages %}
+            {% for i in messages %}
+                <div class="alert alert-success alert-dismissible fade show custommar" role="alert">
+                    <p class="pd-4 pt-4">{{ i|safe }}</p>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+
+    {{ msg}}
+    <div class="container">
+        <div class="row mt-5 pl-3 pr-3">
+            <div class="col-12 mt-3">
+                <div class="tab-content" id="nav-tabContent">
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <p class="display-4">Chats : </p>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade show active" id="list-home" role="tabpanel" aria-labelledby="list-home-list">
+                        <div class="row">
+                            <div class="col-12 text-center">
+                                <div class="jumbotron marginset pb-0" id = 'scbar'>
+                                    {% if message %}
+                                        {% for i,j,k in chat %}
+                                            <div class="row chatrow">
+                                                <div class="col-6 text-left">
+                                                    <p class="msg">{{i}}</p>
+                                                </div>
+                                                <div class="col-6 text-right">
+                                                    <label>{{k}}</label>
+                                                    <p class="time">-- {{j}}</p>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                        {% else %}
+                                        <div class="row">
+                                            <div class="col text-center">
+                                                <p>This is the very beginning of your messages</p>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        <div class="row">
+                                            <div class="col-11 text-center">
+                                                <div class="form-group">
+                                                    <input type="text" placeholder="Message here to {{user}}" class="form-control" name = 'text' aria-describedby="emailHelp">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-1">
+                                                <button class="btn btn-success">Post</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // So that the scroll bar is fixed below
+        function updateScroll(){
+            var element = document.getElementById("scbar");
+            element.scrollTop = element.scrollHeight;
+        }
+        updateScroll();
+    </script>
+</body>
+</html>
