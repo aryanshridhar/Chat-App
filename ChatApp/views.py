@@ -9,12 +9,7 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 
 
-#to fix
-
-# user cant send himself messages
-
 def homepage(request):
-    
     #searching 
     if request.method == 'POST':
         search_ = request.POST.get('search')
@@ -26,9 +21,13 @@ def homepage(request):
         else:
             return HttpResponse('User not found or the user is already connected !')
 
+
+    # messages already send to this account 
+    msg_user = {str(i) for i in list((map(lambda item:item.for_user,CurrentChat.objects.filter(user = request.user))))}
+
     #main
     try:
-        all_conn = list(CurrentChat.objects.filter(for_user = request.user))
+        all_conn = {str(i) for i in list(CurrentChat.objects.filter(for_user = request.user))}.union(msg_user)
         context = {'connect' : all_conn}
     except:
         context = {}
@@ -57,13 +56,18 @@ def chat(request , user1):
 
 
 def login(request):
-    form = AuthenticationForm(data=request.POST or None)
-    if form.is_valid():
-        user = form.get_user()
-        auth_login(request , user)
-        messages.success(request , f'Successfully logged in as {form.cleaned_data["username"]}')
-        return redirect('homepage')
-    context = {'form' : form}
+    context = {}
+    if not request.user.is_authenticated:
+        form = AuthenticationForm(data=request.POST or None)
+        context['form'] = form
+        if form.is_valid():
+            user = form.get_user()
+            auth_login(request , user)
+            messages.success(request , f'Successfully logged in as {form.cleaned_data["username"]}')
+            return redirect('homepage')
+    else:
+        messages.success(request , 'Already logged in!')
+        return redirect('http://127.0.0.1:8000')
     return render(request , 'ChatApp/login.html' , context)
 
 
